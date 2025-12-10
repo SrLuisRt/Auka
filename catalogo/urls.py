@@ -12,4 +12,6 @@ urlpatterns = [
     path('categorias/crear/', views.category_create, name='category_create'),
     path('ajax/cargar-categorias/', views.cargar_categorias, name='cargar_categorias'),
     path('categoria/<int:pk>/eliminar/', views.category_delete, name='categoria_eliminar'),
+    path('destacar/<int:pk>/', views.toggle_destacado, name='toggle_destacado'),
+    path('intercambiar/<int:old_pk>/<int:new_pk>/', views.intercambiar_destacado, name='intercambiar_destacado'),
 ]

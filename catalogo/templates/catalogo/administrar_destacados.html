@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+{% load filtros_extra %}
+
+{% block title %}Límite de Destacados Alcanzado{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; text-align: center;">
+    <h1 style="color: #C6554B;">¡Límite de 4 destacados alcanzado!</h1>
+    
+    <p style="font-size: 1.1rem; margin-bottom: 2rem;">
+        Para destacar <strong>"{{ nuevo_producto.nombre }}"</strong>, primero debes quitar uno de los productos que ya están en la portada.
+    </p>
+
+    <div class="grid">
+        {% for prod in destacados_actuales %}
+        <article class="card" style="border: 2px solid #7A8C76;">
+            <h3>{{ prod.nombre }}</h3>
+            {% if prod.imagen %}
+                <img src="{{ prod.imagen.url }}" alt="{{ prod.nombre }}" style="height: 150px; object-fit: cover;">
+            {% endif %}
+            
+            <div style="margin-top: 1rem;">
+                <a href="{% url 'catalogo:intercambiar_destacado' old_pk=prod.pk new_pk=nuevo_producto.pk %}" 
+                   class="btn btn-danger" 
+                   style="font-size: 0.9rem; width: 100%;">
+                   Quitar este y poner el nuevo
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'catalogo:producto_lista' %}" class="btn btn-ghost">Cancelar operación</a>
+    </div>
+</div>
+{% endblock %}

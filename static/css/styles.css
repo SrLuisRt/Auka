@@ -880,3 +880,20 @@ li {
     align-items: center;
     transform: translateY(23px);
 }
+
+.destacado-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.destacado-btn.on {
+    background: #FFD700;
+    color: #333;
+}
+
+.destacado-btn.off {
+    border: 1px solid #999;
+    color: #999;
+}

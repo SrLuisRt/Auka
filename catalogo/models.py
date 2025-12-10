@@ -30,6 +30,7 @@ class Product(models.Model):
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
     activo = models.BooleanField(default=True)
+    destacado = models.BooleanField(default=False, verbose_name="¿Destacado en Home?")
 
     def save(self, *args, **kwargs):
         

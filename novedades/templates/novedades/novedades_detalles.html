@@ -19,7 +19,21 @@
         <p style="color: var(--color-text-soft);">
             Publicado el {{ noticia.creado_en|date:"d \d\e F \d\e Y" }} a las {{ noticia.creado_en|date:"H:i" }}
         </p>
-    </header>
+
+        {% if noticia.dias_restantes is not None %}
+            <div style="margin-top: 10px; font-size: 0.95rem; font-weight: bold;">
+                {% if noticia.dias_restantes > 1 %}
+                    <span style="color: #d97706;">⏳ Quedan {{ noticia.dias_restantes }} días para que expire</span>
+                {% elif noticia.dias_restantes == 1 %}
+                    <span style="color: #d97706;">⏳ Queda 1 día para que expire</span>
+                {% elif noticia.dias_restantes == 0 %}
+                    <span style="color: #dc2626;">⚠️ Esta noticia expira hoy</span>
+                {% else %}
+                    <span style="color: #991b1b;">❌ Esta noticia expiró hace {{ noticia.dias_restantes|stringformat:"d"|slice:"1:" }} días</span>
+                {% endif %}
+            </div>
+        {% endif %}
+        </header>
 
     {% if noticia.imagen %}
         <div style="margin-bottom: 2rem; border-radius: 18px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">

@@ -143,3 +143,53 @@ def category_delete(request, pk):
     return render(request, 'catalogo/categoria_eliminar.html', {
         'categoria': categoria
     })
+
+
+
+@login_required
+@user_passes_test(es_staff)
+def toggle_destacado(request, pk):
+    producto_a_destacar = get_object_or_404(Product, pk=pk)
+
+    
+    if producto_a_destacar.destacado:
+        producto_a_destacar.destacado = False
+        producto_a_destacar.save()
+        messages.success(request, f'"{producto_a_destacar.nombre}" ya no está destacado.')
+        return redirect('catalogo:producto_lista')
+
+    
+    cantidad_destacados = Product.objects.filter(destacado=True).count()
+
+    if cantidad_destacados >= 4:
+ 
+        destacados_actuales = Product.objects.filter(destacado=True)
+        return render(request, 'catalogo/administrar_destacados.html', {
+            'nuevo_producto': producto_a_destacar,
+            'destacados_actuales': destacados_actuales
+        })
+
+
+    producto_a_destacar.destacado = True
+    producto_a_destacar.save()
+    messages.success(request, f'"{producto_a_destacar.nombre}" ha sido destacado en el inicio.')
+    return redirect('catalogo:producto_lista')
+
+@login_required
+@user_passes_test(es_staff)
+def intercambiar_destacado(request, old_pk, new_pk):
+    """
+    Quita el destacado del producto 'old_pk' y se lo pone al 'new_pk'.
+    """
+    producto_viejo = get_object_or_404(Product, pk=old_pk)
+    producto_nuevo = get_object_or_404(Product, pk=new_pk)
+
+
+    producto_viejo.destacado = False
+    producto_nuevo.destacado = True
+    
+    producto_viejo.save()
+    producto_nuevo.save()
+
+    messages.success(request, f'Se reemplazó "{producto_viejo.nombre}" por "{producto_nuevo.nombre}" en destacados.')
+    return redirect('catalogo:producto_lista')

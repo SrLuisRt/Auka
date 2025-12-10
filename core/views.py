@@ -4,8 +4,15 @@ from catalogo.models import Product
 from novedades.models import NewsItem
 
 def home(request):
-    productos_destacados = Product.objects.filter(activo=True, stock__gt=0)[:3]
+    
+    productos_destacados = Product.objects.filter(
+        activo=True, 
+        stock__gt=0,
+        destacado=True  
+    )[:4]  
+
     noticias_recientes = NewsItem.objects.filter(publicado=True)[:3]
+    
     return render(request, 'core/home.html', {
         'productos_destacados': productos_destacados,
         'noticias_recientes': noticias_recientes,
@@ -13,7 +20,6 @@ def home(request):
 
 def es_staff(user):
     return user.is_staff
-
 
 @login_required
 @user_passes_test(es_staff)
