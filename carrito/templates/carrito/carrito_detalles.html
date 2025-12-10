@@ -1,0 +1,156 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load filtros_extra %}
+
+{% block title %}Tu carrito - Auka Terapias{% endblock %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="cart-container">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Tu carrito</h1>
+
+    {% if items %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        {% if item.producto.imagen %}
+                            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                        {% else %}
+                            <div style="width: 50px; height: 50px; background: #eee; border-radius: 8px;"></div>
+                        {% endif %}
+                        <span>{{ item.producto.nombre }}</span>
+                    </div>
+                </td>
+
+                <td>
+                    <form action="{% url 'carrito:cart_add' item.producto.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="override" value="True">
+                        
+                        <div class="quantity-group">
+                            <input type="number" 
+                                   name="cantidad" 
+                                   value="{{ item.cantidad }}" 
+                                   min="0" 
+                                   max="{{ item.producto.stock }}" 
+                                   class="quantity-input-small"
+                                   data-original="{{ item.cantidad }}" 
+                                   onchange="validarCantidad(this)">
+                        </div>
+                    </form>
+                </td>
+
+                <td>{{ item.subtotal|clp }}</td>
+
+                <td>
+                    <a href="#" 
+                       data-url="{% url 'carrito:cart_remove' item.producto.pk %}"
+                       data-nombre="{{ item.producto.nombre }}"
+                       onclick="confirmarEliminar(event, this)" 
+                       class="btn-ghost" 
+                       style="padding: 5px 10px; font-size: 0.8rem; color: #C6554B; border-color: #C6554B;">
+                        Quitar
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="cart-total">
+        <strong>Total: {{ total|clp }}</strong>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
+        <a href="{% url 'catalogo:producto_lista' %}" class="btn btn-ghost">
+            ← Seguir comprando
+        </a>
+        
+        <a href="{% url 'carrito:cart_checkout' %}" class="btn btn-primary">
+            Comprar
+        </a>
+    </div>
+
+    {% else %}
+        <div style="text-align: center; padding: 3rem; opacity: 0.7;">
+            <p>Tu carrito está vacío.</p>
+            <a href="{% url 'catalogo:producto_lista' %}" class="btn btn-primary" style="margin-top: 1rem;">
+                Ir al catálogo
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    const colorPrimario = '#7A8C76';
+    const colorRojo = '#C6554B';
+
+
+    function confirmarEliminar(e, btn) {
+        e.preventDefault(); 
+        
+        
+        const urlDestino = btn.getAttribute('data-url');
+        const nombreProducto = btn.getAttribute('data-nombre');
+
+        Swal.fire({
+            title: '¿Eliminar producto?',
+            text: `¿Estás segura de quitar "${nombreProducto}" del carrito?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: colorRojo,
+            cancelButtonColor: colorPrimario,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            background: '#FFFDF8',
+            color: '#3F3A33'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = urlDestino;
+            }
+        });
+    }
+
+    
+    function validarCantidad(input) {
+        const formulario = input.form;
+        const valor = parseInt(input.value);
+        const original = input.getAttribute('data-original'); 
+
+        if (valor === 0) {
+            Swal.fire({
+                title: '¿Quitar del carrito?',
+                text: "Has seleccionado 0 cantidad. ¿Deseas eliminar el producto?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: colorRojo,
+                cancelButtonColor: colorPrimario,
+                confirmButtonText: 'Sí, quitar',
+                cancelButtonText: 'No, me equivoqué'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formulario.submit();
+                } else {
+                    input.value = original; 
+                }
+            });
+        } else {
+            formulario.submit();
+        }
+    }
+</script>
+
+{% endblock %}
